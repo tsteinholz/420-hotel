@@ -82,7 +82,8 @@ BEGIN
     IF COUNTER > 0 then
         FOR specific_rowtype in specific_row
         LOOP
-            dbms_output.put_line('services for this res_id are: '||specific_rowtype.service_rate ||', '||specific_rowtype.reservation_id||', '||specific_rowtype.service_type);
+            dbms_output.put_line('services for this res_id are: ' || specific_rowtype.service_rate ||', '
+                                     || specific_rowtype.reservation_id || ', ' || specific_rowtype.service_type);
         END LOOP;
     ELSE
         dbms_output.put_line('this service type is currently not being used.' );

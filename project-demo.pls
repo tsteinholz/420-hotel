@@ -21,19 +21,56 @@
 -- Member 2
 
 -- 6. Reservations:
--- a.	Make a reservation at hotel H2 by John Smith from Aug 1 – Aug 10 for a suite
--- b.	Make any reservation at hotel H1 (already sold – should print out appropriate msg)
--- c.	Make a reservation by Arnold Patterson for conference hall at H4 from Jan 1 – Jan 5
--- d.	Make a reservation by Arnold Patterson for double room at H4 from Jan 1 – Jan 5
--- e.	Find the reservation of Arnold Patterson
--- f.	Make a reservation by Mary Wise for single at H4 from Jan 10 – Jan 15
--- g.	Make a reservation by Mary Wise for a double at H4 from Jan 1 – Jan 5
--- h.	Cancel reservation of Arnold Patterson for double room
-CALL CancelReservation(900);
--- i.	Cancel reservation of John Smith
-CALL CancelReservation(1000);
--- j.	Show cancellations
-CALL ShowCancellations();
+DECLARE
+    res_id NUMBER;
+BEGIN
+    -- a.	Make a reservation at hotel H2 by John Smith from Aug 1 – Aug 10 for a suite
+    MakeReservation(1,
+                    'Jimmy Bob',
+                    TO_DATE('2014-01-21', 'YYYY-MM-DD'),
+                    TO_DATE('2014-01-25', 'YYYY-MM-DD'),
+                    '',  -- type of room
+                    TO_DATE('2014-01-15', 'YYYY-MM-DD'),
+                    res_id);
+    DBMS_OUTPUT.PUT_LINE('Successfully made a reservation! ID: ' || res_id);
+    -- b.	Make any reservation at hotel H1 (already sold – should print out appropriate msg)
+    MakeReservation(1,
+                    'Jimmy Bob',
+                    TO_DATE('2014-01-21', 'YYYY-MM-DD'),
+                    TO_DATE('2014-01-25', 'YYYY-MM-DD'),
+                    '',  -- type of room
+                    TO_DATE('2014-01-15', 'YYYY-MM-DD'),
+                    res_id);
+    DBMS_OUTPUT.PUT_LINE('Successfully made a reservation! ID: ' || res_id);
+    -- c.	Make a reservation by Arnold Patterson for conference hall at H4 from Jan 1 – Jan 5
+    MakeReservation(1,
+                    'Jimmy Bob',
+                    TO_DATE('2014-01-21', 'YYYY-MM-DD'),
+                    TO_DATE('2014-01-25', 'YYYY-MM-DD'),
+                    '',  -- type of room
+                    TO_DATE('2014-01-15', 'YYYY-MM-DD'),
+                    res_id);
+    DBMS_OUTPUT.PUT_LINE('Successfully made a reservation! ID: ' || res_id);
+    -- d.	Make a reservation by Arnold Patterson for double room at H4 from Jan 1 – Jan 5
+    MakeReservation(1,
+                    'Jimmy Bob',
+                    TO_DATE('2014-01-21', 'YYYY-MM-DD'),
+                    TO_DATE('2014-01-25', 'YYYY-MM-DD'),
+                    '',  -- type of room
+                    TO_DATE('2014-01-15', 'YYYY-MM-DD'),
+                    res_id);
+    DBMS_OUTPUT.PUT_LINE('Successfully made a reservation! ID: ' || res_id);
+    -- e.	Find the reservation of Arnold Patterson
+   FindReservation('Arnold Patterson', TO_DATE('', '', 2));
+    -- f.	Make a reservation by Mary Wise for single at H4 from Jan 10 – Jan 15
+    -- g.	Make a reservation by Mary Wise for a double at H4 from Jan 1 – Jan 5
+    -- h.	Cancel reservation of Arnold Patterson for double room
+    CancelReservation(900);
+    -- i.	Cancel reservation of John Smith
+    CancelReservation(1000);
+    -- j.	Show cancellations
+    ShowCancellations();
+END;
 
 -- Member 3
 
