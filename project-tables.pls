@@ -23,13 +23,13 @@
 
 -- UNCOMMENT TO REGENERATE TABLE DEFINITIONS
 --------------------------------------------
--- DROP TABLE rooms;
--- DROP TABLE customer_room_invoices;
--- DROP TABLE customer_service_invoices;
--- DROP TABLE reservations;
--- DROP TABLE hotels;
--- DROP TABLE customers;
--- DROP TABLE services;
+DROP TABLE rooms;
+DROP TABLE customer_room_invoices;
+DROP TABLE customer_service_invoices;
+DROP TABLE reservations;
+DROP TABLE hotels;
+DROP TABLE customers;
+DROP TABLE services;
 
 CREATE TABLE hotels
 (
@@ -72,6 +72,12 @@ CREATE TABLE customers
 );
 
 CREATE SEQUENCE reservations_seq
+    START WITH 1000
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
+
+CREATE SEQUENCE customer_seq
     START WITH 1000
     INCREMENT BY 1
     NOCACHE
