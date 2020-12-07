@@ -251,8 +251,8 @@ end;
 Create or replace procedure show_singleGuest(name in VARCHAR2) is
     Cursor c4 is
         select reservation_date, reservation_id, room_type
-        from reservations
-        WHERE customer_name = name;
+        from reservations, customers
+        WHERE customers.customer_id=reservations.CUSTOMER_ID and customer_name = name;
     cursor_variable c4%rowtype;
 begin
     for cursor_variable in c4
@@ -268,7 +268,7 @@ Create or replace procedure change_reservation(res_id in INT) is
         select reservation_date, reservation_id, room_type
         from reservations
         WHERE reservation_id = res_id
-          and reservation_date = res_date;
+          and reservation_date = reservation_date;
     cursor_variable c1%rowtype;
 begin
     for cursor_variable in c1
