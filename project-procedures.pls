@@ -121,13 +121,16 @@ BEGIN
         SELECT CUSTOMER_ID INTO v_customer_id FROM CUSTOMERS WHERE CUSTOMER_NAME=p_guest_name;
     else
         -- No valid customer ID, given guest name.
-        raise invalid_guest_ex;
+        -- raise invalid_guest_ex;
+        -- Create Customer....
+        v_customer_id := customer_seq.nextval;
+        INSERT INTO CUSTOMERS VALUES(v_customer_id, p_guest_name, '', '', '', '', '', NULL, NULL, NULL);
     end if;
     -- Set next reservation id
     o_reservation_id := reservations_seq.nextval;
     -- Insert user values.
     INSERT INTO RESERVATIONS VALUES (o_reservation_id, p_date_of_reservation, v_customer_id, p_hotel_id, p_start_date,
-                                     NULL, p_end_date, NULL, 0, p_room_type);
+                                     NULL, p_end_date, NULL, 0, p_date_of_reservation, p_room_type);
 EXCEPTION
     WHEN invalid_hotel_ex THEN
         DBMS_OUTPUT.PUT('There is no record for the given HOTEL_ID: ');
