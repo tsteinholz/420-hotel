@@ -1,7 +1,7 @@
 DECLARE
     H1_ID Number;
     H2_ID Number;
-    H3_ID Number;
+--     H3_ID Number; Unused!
     H4_ID Number;
     H5_ID Number;
     res_id NUMBER;
