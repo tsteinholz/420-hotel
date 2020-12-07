@@ -1,7 +1,7 @@
 DECLARE
     H1_ID Number;
     H2_ID Number;
---     H3_ID Number; Unused!
+    H3_ID Number;
     H4_ID Number;
     H5_ID Number;
     res_id NUMBER;
@@ -11,40 +11,45 @@ BEGIN
     -- Member 1, Stevie Clark
     -- 1. Add a hotel:
     DBMS_OUTPUT.PUT_LINE('1. Add Hotels:');
-    Add_Hotel('H1', '130 W 46th Street', 'New York', 'NY', '10036', '2124852400', 0); -- a.    Add a new hotel called H1 in New York, NY
-    Add_Hotel('H2', '200 International Drive', 'Baltimore', 'MD', '21202', '4105765800', 0); -- b.    Add a new hotel called H2 in Baltimore, MD
-    Add_Hotel('H3', '345 Stockton Street', 'San Francisco', 'CA', '94108', '4153981234', 0); -- c.    Add a new hotel called H3 in San Francisco, CA
-    Add_Hotel('H4', '100 Westgate Circle', 'Annapolis', 'MD', '21401', '4109724300', 0); -- d.    Add a new hotel called H4 in Annapolis, MD
-    Add_Hotel('H5', '222 St Paul Place', 'Baltimore', 'MD', '21202', '4107272222', 0); -- e.    Add a new hotel called H5 in Baltimore, MD
+    Add_Hotel('H1', '130 W 46th Street', 'New York', 'NY', '10036', '2124852400', 0); -- a.	Add a new hotel called H1 in New York, NY
+    Add_Hotel('H2', '200 International Drive', 'Baltimore', 'MD', '21202', '4105765800', 0); -- b.	Add a new hotel called H2 in Baltimore, MD
+    Add_Hotel('H3', '345 Stockton Street', 'San Francisco', 'CA', '94108', '4153981234', 0); -- c.	Add a new hotel called H3 in San Francisco, CA
+    Add_Hotel('H4', '100 Westgate Circle', 'Annapolis', 'MD', '21401', '4109724300', 0); -- d.	Add a new hotel called H4 in Annapolis, MD
+    Add_Hotel('H5', '222 St Paul Place', 'Baltimore', 'MD', '21202', '4107272222', 0); -- e.	Add a new hotel called H5 in Baltimore, MD
+    DBMS_OUTPUT.PUT_LINE(' ');
 
-    -- 2.    Find a hotel:
+    -- 2.	Find a hotel:
     DBMS_OUTPUT.PUT_LINE('2. Find Hotels:');
-    FindHotel('345 Stockton Street'); -- a.    Find the hotel ID for the hotel H3
-    FindHotel('200 International Drive'); -- b.    Find the hotel ID for the hotel H2
+    FindHotel('345 Stockton Street', H3_ID); -- a.	Find the hotel ID for the hotel H3
+    FindHotel('200 International Drive', H2_ID); -- b.	Find the hotel ID for the hotel H2
+    DBMS_OUTPUT.PUT_LINE('');
 
     -- 3. Add a room:
     DBMS_OUTPUT.PUT_LINE('3. Add Rooms:');
-    H2_ID := FindHotel('200 International Drive');
-    AddHotelRoom(H2_ID, 'double, 10'); -- a.    Add 5 double rooms to H2
-    AddHotelRoom(H2_ID, 'suite', 2); -- b.    Add 2 suites to H2
-
-    H1_ID := FindHotel('130 W 46th Street');
-    AddHotelRoom(H1_ID, 'double', 10); -- c.    Add 10 double rooms to H1
-
-    H4_ID := FindHotel('100 Westgate Circle');
-    AddHotelRoom(H4_ID, 'conference', 1); -- d.    Add 1 conference hall to H4
-
-    H5_ID := FindHotel('222 St Paul Place');
-    AddHotelRoom(H5_ID, 'conference', 1); -- e.    Add 1 conference hall to H5
+    AddHotelRoom(H2_ID, 'double', 5); -- a.	Add 5 double rooms to H2
+    DBMS_OUTPUT.PUT_LINE(' ');
+    AddHotelRoom(H2_ID, 'suite', 2); -- b.	Add 2 suites to H2
+    DBMS_OUTPUT.PUT_LINE(' ');
+    FindHotel('130 W 46th Street', H1_ID);
+    AddHotelRoom(H1_ID, 'double', 10); -- c.	Add 10 double rooms to H1
+    DBMS_OUTPUT.PUT_LINE(' ');
+    FindHotel('100 Westgate Circle', H4_ID);
+    AddHotelRoom(H4_ID, 'conference', 1); -- d.	Add 1 conference hall to H4
+    DBMS_OUTPUT.PUT_LINE(' ');
+    FindHotel('222 St Paul Place', H5_ID);
+    AddHotelRoom(H5_ID, 'conference', 1); -- e.	Add 1 conference hall to H5
+    DBMS_OUTPUT.PUT_LINE(' ');
 
     -- 4. Sell H1
     DBMS_OUTPUT.PUT_LINE('4. Sell Hotel H1:');
     SellHotel(H1_ID);
+    DBMS_OUTPUT.PUT_LINE(' ');
 
     -- 5. Report hotels in the state of MD
     DBMS_OUTPUT.PUT_LINE('5. Report Hotels in MD:');
     ReportHotel('MD');
-
+    DBMS_OUTPUT.PUT_LINE(' ');
+    
     -- Member 2, Thomas Steinholz
     DBMS_OUTPUT.PUT_LINE('6. Reservations:');
     DBMS_OUTPUT.PUT_LINE('a.	Make a reservation at hotel H2 by John Smith from Aug 1 – Aug 10 for a suite');
