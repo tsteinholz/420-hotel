@@ -302,11 +302,12 @@ begin
     WHERE reservation_id = res_id;
 end;
 
-CREATE OR REPLACE PROCEDURE MonthlyIncomeReport IS
+CREATE OR REPLACE PROCEDURE MonthlyIncomeReport(year IN NUMBER) IS
 
     -- used to filter cursors.
     v_res_id NUMBER;
     v_hotel_id NUMBER;
+    v_month NUMBER;
 
     -- cursors for iterating data.
     CURSOR c_service_invoices IS SELECT SERVICE_TYPE, s.SERVICE_ID, SERVICE_AMOUNT
@@ -321,7 +322,8 @@ CREATE OR REPLACE PROCEDURE MonthlyIncomeReport IS
 
     CURSOR c_reservations IS SELECT RESERVATION_ID, CHECK_OUT_TIME, ROOM_TYPE, CANCELED
         FROM RESERVATIONS
-        WHERE HOTEL_ID=v_hotel_id;
+        WHERE HOTEL_ID=v_hotel_id AND EXTRACT(MONTH FROM CHECK_OUT_TIME)=v_month
+          AND EXTRACT(YEAR FROM CHECK_OUT_TIME)=year;
     r_reservation c_reservations%rowtype;
 
     CURSOR c_hotels IS SELECT HOTEL_ID, HOTEL_NAME, HOTEL_IS_SOLD FROM HOTELS;
@@ -329,22 +331,30 @@ CREATE OR REPLACE PROCEDURE MonthlyIncomeReport IS
 
 BEGIN
     for r_hotel in c_hotels
-        LOOP
-            v_hotel_id := r_hotel.HOTEL_ID; -- used for filtering other cursors.
+    LOOP  -- Each Hotel.
+
+        v_hotel_id := r_hotel.HOTEL_ID; -- used for filtering other cursors.
+
+        FOR month in 1 .. 12
+        LOOP  -- Each month.
+
+            v_month := month; -- used for filtering other cursors.
+
             OPEN c_reservations;
+            LOOP  -- Each reservation.
+
+                FETCH c_reservations INTO r_reservation;
+                v_res_id := r_reservation.RESERVATION_ID; -- used for filtering other cursors.
+
+                OPEN get_columns;
                 LOOP
-                    FETCH c_reservations INTO r_reservation;
-                    v_res_id := r_reservation.RESERVATION_ID; -- used for filtering other cursors.
+                    FETCH get_columns INTO v_column_name;
+                END LOOP;
 
-                    OPEN get_columns;
-                    LOOP
-                        FETCH get_columns INTO v_column_name;
-                    END LOOP;
+                CLOSE get_columns;
 
-              CLOSE get_columns;
-
-           END LOOP;
-
-           CLOSE c_reservations;
+            END LOOP;
+            CLOSE c_reservations;
         END LOOP;
+    END LOOP;
 END;
