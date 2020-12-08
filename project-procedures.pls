@@ -123,16 +123,21 @@ CREATE OR REPLACE PROCEDURE MakeReservation(p_hotel_id IN NUMBER, -- hotel ident
                                             o_reservation_id OUT NUMBER) -- confirmation num
     IS
     invalid_hotel_ex EXCEPTION;
+    sold_hotel_ex EXCEPTION;
     invalid_guest_ex EXCEPTION;
     v_hotel_cnt    NUMBER;
+    v_is_sold      NUMBER;
     v_customer_cnt NUMBER;
     v_customer_id  NUMBER;
 BEGIN
     -- Verify Hotel ID parameter.
-    SELECT COUNT(HOTEL_ID) INTO v_hotel_cnt FROM HOTELS WHERE HOTEL_ID = p_hotel_id;
+    SELECT COUNT(HOTEL_ID), HOTEL_IS_SOLD INTO v_hotel_cnt, v_is_sold FROM HOTELS WHERE HOTEL_ID = p_hotel_id;
     if (NOT v_hotel_cnt = 1) then
         -- No Valid Hotel, given Hotel ID.
         raise invalid_hotel_ex;
+    else if (v_is_sold=1) then
+        raise sold_hotel_ex;
+    end if;
     end if;
     -- Verify Guest Name parameter.
     SELECT COUNT(*) INTO v_customer_cnt FROM CUSTOMERS WHERE CUSTOMER_NAME = p_guest_name;
@@ -154,9 +159,9 @@ BEGIN
             NULL, p_end_date, NULL, 0, p_date_of_reservation, p_room_type);
 EXCEPTION
     WHEN invalid_hotel_ex THEN
-        DBMS_OUTPUT.PUT('There is no record for the given HOTEL_ID: ');
-        DBMS_OUTPUT.PUT(p_hotel_id);
-        DBMS_OUTPUT.PUT_LINE('!');
+        DBMS_OUTPUT.PUT_LINE('Unable to make reservation at HOTEL_ID: ' || p_hotel_id || ', does not exist!');
+    WHEN sold_hotel_ex THEN
+        DBMS_OUTPUT.PUT_LINE('Unable to make reservation at HOTEL ID: ' || p_hotel_id || ', hotel is already sold!');
     WHEN invalid_guest_ex THEN
         DBMS_OUTPUT.PUT('There is no customer record for the given GUEST_NAME: ');
         DBMS_OUTPUT.PUT(p_guest_name);

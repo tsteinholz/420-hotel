@@ -163,4 +163,4 @@ BEGIN
     -- TODO
     DBMS_OUTPUT.PUT_LINE('c.	Show Income for all hotels in MD');
     -- TODO
-END
+END;
