@@ -122,15 +122,19 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Member 3');
 
     DBMS_OUTPUT.PUT_LINE('7. Change Reservations');
-    -- TODO
+    
     DBMS_OUTPUT.PUT_LINE('a.	Change Arnold’s reservation of a conference hall to Feb 1 – Feb 5');
-    -- TODO
+    change_reservation(arnold_res_id,
+                      TO_DATE ('2021-02-01','YYYY-MM-DD'),
+                      TO_DATE ('2021-02-05','YYYY-MM-DD'),
+                      'conference')
     DBMS_OUTPUT.PUT_LINE('b.	Change Mary Wise reservation room type from double to single room');
-    -- TODO
+    change_roomType(wise_res_id,
+                   'single')
     DBMS_OUTPUT.PUT_LINE('c.	Show reservations for H4');
-    -- TODO
+    show_singleHotel(H4)
     DBMS_OUTPUT.PUT_LINE('d.	Show all reservations that  Mary Wise made');
-    -- TODO
+    show_singleGuest(wise_res_id)
     DBMS_OUTPUT.PUT_LINE('e.	Provide Total Monthly income report');
     -- TODO
 
