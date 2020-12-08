@@ -373,3 +373,449 @@ BEGIN
         END LOOP;
     END LOOP;
 END;
+
+-- Member 5 
+create or replace procedure showAvailableRooms (hotel_id_input in number) is
+cursor roomie is 
+select room_type, count(room_number) as blug 
+from rooms, hotels where room_availability = 1 and hotel_id_input = hotel_id  
+group by room_type;
+roomie_row roomie%rowtype;
+begin 
+dbms_output.put_line('Hotel # ' || hotel_id_input || ' available rooms');
+dbms_output.put_line('-----------------------------------');
+for roomie_row in roomie 
+    loop
+    --dbms_output.put_line('Room type is ' || roomie_row.room_type || 'Available room count is ' || roomie_row.blug);
+    dbms_output.put_line(roomie_row.blug || ' ' || roomie_row.room_type || ' rooms available :)');
+    END LOOP;
+    exception
+    when others then 
+    dbms_output.put_line('Unexpected error has occurred'); 
+
+end;
+/
+
+create or replace procedure checkoutreport (
+    in_res_id in number
+    )        
+is
+    cus_nam VARCHAR2(50);
+    hotel_num_stor number;
+    hotel_name_stor VARCHAR2(50);
+    roomNumber NUMBER NULL;
+    rum_rate NUMBER NULL;
+    serv_typo VARCHAR2(50);
+    serv_dato date;
+    serv_rato number;
+    DISCOUNT NUMBER;
+    TOTAL_SRV_AMOUNT NUMBER;
+    TOTAL_ROOM_AMOUNT_WD NUMBER:= 0;
+    TOTAL_ROOM_AMOUNT NUMBER;
+    res_days number;
+    service_res_id_hold number;
+    room_rate_hold number;
+     
+    cursor room_cursorS is 
+        select reservation_room 
+        from customer_room_invoices 
+        where reservation_id = in_res_id;
+        
+    room_cursor customer_room_invoices%ROWTYPE;
+    
+    cursor room_rate_cursorS is
+        select room.room_rate 
+        from customer_room_invoices 
+        inner join rooms room on room.room_number = customer_room_invoices.reservation_room and room.room_hotel = customer_room_invoices.reservation_hotel 
+        where customer_room_invoices.reservation_id = in_res_id;
+        
+    room_rate_cursor customer_room_invoices%ROWTYPE;
+    
+    cursor service_cursor is 
+        select s.service_rate, s.service_type, s.service_date, c_inv.reservation_id
+        from  services s
+        inner join customer_service_invoices c_inv on s.service_id = c_inv.service_id 
+        where c_inv.reservation_id = in_res_id;
+
+begin
+    select customer_name
+    into cus_nam
+    from reservations r
+    inner join customersGP c on r.customer_id = c.customer_id
+    where r.reservation_id = in_res_id;
+    
+    dbms_output.put_line('The customers name is ' || cus_nam);
+    
+    select hotel_id
+    into hotel_num_stor
+    from reservations r
+    where r.reservation_id = in_res_id;
+    
+    dbms_output.put_line('Hotel Number: ' || hotel_num_stor);
+
+    select hotel_name 
+    into hotel_name_stor
+    from hotels , reservations
+    where in_res_id = reservations.reservation_id and reservations.hotel_id = hotels.hotel_id;
+
+    dbms_output.put_line('Hotel Name: ' || hotel_name_stor);
+   
+    for room_cursor in room_cursorS 
+        loop
+            if (room_cursorS%rowcount = 1) then
+                dbms_output.new_line();
+            end
+                if;
+                dbms_output.put_line('Room Number ' || room_cursor.reservation_room || ' is on this reservation.');
+        end loop;
+
+select ABS(to_date(check_out_time) - to_date(check_in_time)) into res_days
+from reservations r where r.reservation_id = in_res_id;
+dbms_output.put_line(res_days);
+  
+
+    for room_rate_cursor in room_rate_cursorS
+        loop
+            if (room_rate_cursorS%rowcount = 1) then 
+                dbms_output.put_line('Room rates listed in order of room numer:');
+            end
+                if;
+                dbms_output.put_line(room_rate_cursor.room_rate || ' is the room rate per day');
+                room_rate_hold := room_rate_cursor.room_rate;
+                TOTAL_ROOM_AMOUNT_WD:=TOTAL_ROOM_AMOUNT_WD + room_rate_hold * res_days;
+                dbms_output.put_line(room_rate_hold * res_days);
+                
+        end loop;
+        
+        dbms_output.new_line();
+        
+SELECT CAST( CASE 
+        WHEN  ABS(TO_DATE(reservation_time)- TO_DATE(check_in_time)) >= 62 
+            THEN 1 
+            ELSE 0  
+     END as int ) 
+    INTO DISCOUNT
+    FROM reservations r
+    where r.reservation_id = in_res_id; 
+
+--dbms_output.put_line('this line prints');
+
+select SUM(c_inv.service_amount)
+    INTO TOTAL_SRV_AMOUNT
+     FROM reservations r
+     INNER JOIN customer_service_invoices  c_inv on c_inv.reservation_id = r.reservation_id
+    where r.reservation_id = in_res_id;
+        
+
+CASE WHEN DISCOUNT = 1
+        THEN TOTAL_ROOM_AMOUNT :=  TOTAL_SRV_AMOUNT + TOTAL_ROOM_AMOUNT_WD*0.1;
+        ELSE TOTAL_ROOM_AMOUNT := TOTAL_SRV_AMOUNT + TOTAL_ROOM_AMOUNT_WD;
+END CASE;
+
+dbms_output.put_line(TOTAL_SRV_AMOUNT || 'and' || TOTAL_ROOM_AMOUNT_WD);
+
+/*select distinct
+s.service_rate, s.service_type, s.service_date
+into serv_rato, serv_typo, serv_dato
+from customer_service_invoices c_inv
+inner join services s on s.service_id = c_inv.service_id and c_inv.reservation_id = 3;--in_res_id;
+
+dbms_output.put_line('this line prints');*/
+
+dbms_output.put_line('Services:');
+--dbms_output.put_line(serv_typo || ' , ' || serv_dato || ' , $' || serv_rato);
+
+    open service_cursor;
+    loop
+        fetch service_cursor
+            into serv_rato, serv_typo, serv_dato, service_res_id_hold;
+            dbms_output.put_line(serv_typo || ' , ' || serv_dato || ' , $' || serv_rato);
+        exit when service_cursor%notfound;
+    end loop;
+    close service_cursor;
+
+dbms_output.new_line();
+dbms_output.put_line('Total Owed: $' || TOTAL_ROOM_AMOUNT);
+
+EXCEPTION
+    when others then 
+        dbms_output.put_line('An error has occurred!');
+        dbms_output.put_line('The error code is ' || SQLCODE || ' ' || SQLERRM);
+
+
+end;
+/
+                  
+create or replace procedure incomeByStateReport (in_state_id in char) 
+
+is  
+
+    data_not_found exception;
+    res_id_hold number;
+    hotel_id_hold number;
+    randomint number := 0;
+    otherint number:= 0;
+    DISCOUNT NUMBER:=0;
+    TOTAL_SRV_AMOUNT NUMBER:=0;
+    TOTAL_ROOM_AMOUNT_WD NUMBER:=0;
+    TOTAL_ROOM_AMOUNT NUMBER:=0;
+    room_rate_hold number(4,0):=0;
+    room_type_hold VARCHAR2(15);
+    room_num_hold number:=0;
+    single_total number:=0;
+    double_total number:=0;
+    suite_total number:=0;
+    confrence_total number:=0;
+    food_total number:=0;
+    ppv_total number:=0;
+    laundry_total number:=0;
+    serv_typo VARCHAR2(20);
+    serv_rato number:=0;
+    income_total number:=0;
+    cus_nam VARCHAR2(50);
+    res_days number:=0;
+    room_total_hold number:=0;
+
+    cursor hotel_cursorS is
+        select distinct hotel_id
+        from hotels h
+        where hotel_state = in_state_id;
+        
+    cursor reservation_cursorS is
+        select distinct reservation_id
+        from reservations
+        where reservations.hotel_id = hotel_id_hold;
+        
+    cursor room_rate_cursorS is
+        select room.room_rate 
+        from customer_room_invoices 
+        inner join rooms room on room.room_number = customer_room_invoices.reservation_room and room.room_hotel = customer_room_invoices.reservation_hotel 
+        where customer_room_invoices.reservation_id = res_id_hold;
+        
+        
+    cursor room_cursosS is
+        select reservation_room
+        --into room_num_hold
+        from customer_room_invoices cri
+        where cri.reservation_id = res_id_hold and cri.reservation_hotel = hotel_id_hold;
+        
+    cursor service_cursor is 
+        select s.service_rate, s.service_type
+        from  services s
+        inner join customer_service_invoices c_inv on s.service_id = c_inv.service_id 
+        where c_inv.reservation_id = res_id_hold;
+        
+    --hotel_cursor hotels%ROWTYPE;
+    --reservation_cursor reservations%ROWTYPE;
+
+begin
+
+dbms_output.put_line('State: ' || in_state_id);
+dbms_output.new_line();
+
+
+
+
+open hotel_cursorS;
+
+loop
+        
+        fetch hotel_cursorS into hotel_id_hold;
+        exit when hotel_cursorS%notfound;
+        --exit when hotel_id_hold = otherint;
+        --randomint := 0;
+        
+        open reservation_cursorS;
+        
+        loop
+                 
+                fetch reservation_cursorS into res_id_hold;
+                exit when reservation_cursorS%notfound;
+                
+                
+                    
+                /*select reservation_room
+                into room_num_hold
+                from customer_room_invoices cri
+                where cri.reservation_id = res_id_hold and cri.reservation_hotel = hotel_id_hold;
+                    
+                select r.room_rate, r.room_type
+                into room_rate_hold, room_type_hold
+                from rooms r
+                where room_number = room_num_hold and room_hotel = hotel_id_hold;
+                
+                --this block is used to find the roomrtate and store it in a variable*/
+                select ABS(to_date(check_out_time) - to_date(check_in_time)) 
+                into res_days
+                from reservations r 
+                where r.reservation_id = res_id_hold;
+                
+                
+                SELECT CAST( CASE 
+                        WHEN  ABS(TO_DATE(reservation_time)- TO_DATE(check_in_time)) >= 30 
+                            THEN 1 
+                            ELSE 0  
+                     END as int ) 
+                    INTO DISCOUNT
+                    FROM reservations r
+                    where r.reservation_id = res_id_hold;
+                
+                open room_cursosS;
+                    loop
+                        fetch room_cursosS
+                            into room_num_hold;
+                            exit when room_cursosS%notfound;
+                                select r.room_rate, r.room_type
+                                into room_rate_hold, room_type_hold
+                                from rooms r
+                                where room_number = room_num_hold and room_hotel = hotel_id_hold;
+                                room_total_hold:= room_rate_hold * res_days;
+                                
+                                SELECT CAST( CASE 
+                                WHEN  ABS(TO_DATE(reservation_time)- TO_DATE(check_in_time)) >= 30 
+                                        THEN 1 
+                                        ELSE 0  
+                                                END as int ) 
+                                                INTO DISCOUNT
+                                                FROM reservations r
+                                                where r.reservation_id = res_id_hold;
+                                
+                                case when DISCOUNT = 1
+                                    then room_total_hold:= room_total_hold*.10 + room_total_hold;
+                                    else room_total_hold:= room_total_hold; 
+                                end case;
+                                
+                                if room_type_hold = 'single' then single_total:= single_total + room_total_hold; 
+                                end if;
+                                
+                                if room_type_hold = 'double' then double_total:= double_total + room_total_hold; 
+                                end if;
+                                
+                                if room_type_hold = 'suite' then suite_total:= suite_total + room_total_hold; 
+                                end if;
+                                
+                                if room_type_hold = 'confrence' then confrence_total:= confrence_total + room_total_hold; 
+                                end if;
+                                
+                    end loop;
+                close room_cursosS;
+                    
+                /*select SUM(c_inv.service_amount)
+                    INTO TOTAL_SRV_AMOUNT
+                    FROM reservations r
+                    INNER JOIN customer_service_invoices  c_inv on c_inv.reservation_id = r.reservation_id
+                    where r.reservation_id = res_id_hold;*/
+                                        
+                /*SELECT CAST( CASE 
+                         WHEN  ABS(TO_DATE(reservation_time)- TO_DATE(check_in_time)) >= 30 
+                                THEN 1 
+                                ELSE 0  
+                    END as int ) 
+                    INTO DISCOUNT
+                    FROM reservations r
+                    where r.reservation_id = res_id_hold;
+
+                CASE WHEN DISCOUNT = 1
+                    THEN TOTAL_ROOM_AMOUNT :=  TOTAL_SRV_AMOUNT + TOTAL_ROOM_AMOUNT_WD*0.1 ;
+                    ELSE TOTAL_ROOM_AMOUNT := TOTAL_SRV_AMOUNT + TOTAL_ROOM_AMOUNT_WD;
+                END CASE;*/
+
+                /*select distinct
+                s.service_rate, s.service_type
+                into serv_rato, serv_typo
+                from customer_service_invoices c_inv
+                inner join services s on s.service_id = c_inv.service_id and c_inv.reservation_id = res_id_hold;*/
+
+
+               /* if room_type_hold = 'single' then single_total:= single_total + room_rate_hold; 
+                end if;
+                
+                if room_type_hold = 'double' then double_total:= double_total + room_rate_hold; 
+                end if;
+                
+                if room_type_hold = 'suite' then suite_total:= suite_total + room_rate_hold; 
+                end if;
+                
+                if room_type_hold = 'confrence' then confrence_total:= confrence_total + room_rate_hold; 
+                end if;*/
+                
+                /*if serv_typo = 'Food' then food_total:= food_total + TOTAL_SRV_AMOUNT;
+                end if;
+                
+                if serv_typo = 'PPV' then ppv_total:= ppv_total + TOTAL_SRV_AMOUNT; 
+                end if;
+                
+                if serv_typo = 'Laundry' then laundry_total:= laundry_total + TOTAL_SRV_AMOUNT; 
+                end if;*/
+                --food_total:=20;
+                
+                open service_cursor;
+                    loop
+                        fetch service_cursor
+                            into serv_rato, serv_typo;
+                            exit when service_cursor%notfound;
+                            dbms_output.put_line(serv_rato || ' and ' || serv_typo);
+                            
+                            --food_total:= serv_rato * res_days;
+                            
+                            if serv_rato=20 then 
+                            food_total:=20+food_total;
+                            end if;
+                            
+                            if serv_rato=5 then 
+                            ppv_total:=5+ppv_total;
+                            end if;
+                            
+                            if serv_rato=10 then 
+                            laundry_total:=10+laundry_total;
+                            end if;
+                            
+                    end loop;
+                close service_cursor;
+                
+                
+                income_total:= single_total+double_total+suite_total+confrence_total+food_total+ppv_total+laundry_total;
+                
+                 --randomint := randomint+1;
+                 --exit when randomint = 2;
+                 
+                 dbms_output.put_line('Hotel ID: ' || hotel_id_hold);
+                 dbms_output.put_line('Reservation ID: ' || res_id_hold);
+                 
+                 
+                 
+        end loop;
+        
+        close reservation_cursorS;
+        
+            
+   
+                 --otherint := hotel_id_hold;  
+                 
+end loop;
+close hotel_cursorS;
+
+dbms_output.put_line('The single total is: $' || single_total);
+
+dbms_output.put_line('The double total is: $' || double_total);
+
+dbms_output.put_line('The suite total is: $' || suite_total);
+
+dbms_output.put_line('The confrence total is: $' || confrence_total);
+
+dbms_output.put_line('The food total is: $' || food_total);
+dbms_output.put_line('The ppv total is: $' || ppv_total);
+dbms_output.put_line('The laundry total is: $' || laundry_total);
+dbms_output.put_line('The income total is: $' || income_total);
+
+/*exception
+    when data_not_found then
+    DISCOUNT:=0;
+    when others then 
+    dbms_output.put_line('The error code is ' || SQLCODE || ' ' || SQLERRM);*/
+    
+    
+
+
+end;
+/
