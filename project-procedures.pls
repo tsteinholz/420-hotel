@@ -270,7 +270,7 @@ end;
 
 Create or replace procedure change_reservation(res_id in INT) is
     Cursor c1 is
-        select reservation_date, reservation_id, room_type
+        select p_reservation_date, p_reservation_id, p_room_type
         from reservations
         WHERE reservation_id = res_id
           and reservation_date = reservation_date;
@@ -281,14 +281,14 @@ begin
             dbms_output.put_line('reservation date' || cursor_variable.reservation_date);
         end loop;
     UPDATE reservations
-    SET reservation_date = '2020-12-25'
+    SET reservation_date = p_reservation_id
     WHERE reservation_id = res_id
       and room_type = 'available';
 end;
 
 Create or replace procedure change_roomType(res_id in INT) is
     Cursor c2 is
-        select reservation_date, reservation_id, room_type
+        select p_reservation_date, p_reservation_id, p_room_type
         from reservations
         WHERE reservation_id = res_id;
     cursor_variable c2%rowtype;
@@ -298,7 +298,7 @@ begin
             dbms_output.put_line('reservation date' || cursor_variable.reservation_date);
         end loop;
     UPDATE reservations
-    SET room_type = 'double'
+    SET room_type = p_room_type
     WHERE reservation_id = res_id;
 end;
 
