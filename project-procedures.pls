@@ -268,12 +268,12 @@ begin
         end loop;
 end;
 
-Create or replace procedure change_reservation(res_id in INT) is
+Create or replace procedure change_reservation(p_res_id in INT, p_reservation_date in DATE, p_room_type in VARCHAR2) is
     Cursor c1 is
-        select p_reservation_date, p_reservation_id, p_room_type
+        select reservation_date, room_type
         from reservations
-        WHERE reservation_id = res_id
-          and reservation_date = reservation_date;
+        WHERE reservation_id = p_res_id
+          and reservation_date = p_reservation_date;
     cursor_variable c1%rowtype;
 begin
     for cursor_variable in c1
@@ -281,16 +281,16 @@ begin
             dbms_output.put_line('reservation date' || cursor_variable.reservation_date);
         end loop;
     UPDATE reservations
-    SET reservation_date = p_reservation_id
-    WHERE reservation_id = res_id
-      and room_type = 'available';
+    SET reservation_date = p_reservation_date
+    WHERE reservation_id = p_res_id
+      and room_type = p_room_type;
 end;
 
-Create or replace procedure change_roomType(res_id in INT) is
+Create or replace procedure change_roomType(p_res_id in INT, p_room_type in VARCHAR2) is
     Cursor c2 is
-        select p_reservation_date, p_reservation_id, p_room_type
+        select reservation_id, room_type, reservation_date
         from reservations
-        WHERE reservation_id = res_id;
+        WHERE reservation_id = p_res_id;
     cursor_variable c2%rowtype;
 begin
     for cursor_variable in c2
@@ -299,7 +299,7 @@ begin
         end loop;
     UPDATE reservations
     SET room_type = p_room_type
-    WHERE reservation_id = res_id;
+    WHERE reservation_id = p_res_id;
 end;
 
 CREATE OR REPLACE PROCEDURE MonthlyIncomeReport(year IN NUMBER) IS
