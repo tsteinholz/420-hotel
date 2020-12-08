@@ -318,7 +318,7 @@ CREATE OR REPLACE PROCEDURE MonthlyIncomeReport(year IN NUMBER) IS
     CURSOR c_room_invoices IS SELECT RESERVATION_ROOM, ROOM_TYPE, ROOM_RATE
         FROM CUSTOMER_ROOM_INVOICES cri, ROOMS r
         WHERE r.ROOM_NUMBER=cri.RESERVATION_ROOM AND r.ROOM_HOTEL=cri.RESERVATION_HOTEL;
-    r_cri c_room_invoices%rowtype;
+    r_ri c_room_invoices%rowtype;
 
     CURSOR c_reservations IS SELECT RESERVATION_ID, CHECK_OUT_TIME, ROOM_TYPE, CANCELED
         FROM RESERVATIONS
@@ -346,12 +346,21 @@ BEGIN
                 FETCH c_reservations INTO r_reservation;
                 v_res_id := r_reservation.RESERVATION_ID; -- used for filtering other cursors.
 
-                OPEN get_columns;
+                -- Calculate Service Income
+                OPEN c_service_invoices;
                 LOOP
-                    FETCH get_columns INTO v_column_name;
+                    FETCH c_service_invoices INTO r_si;
                 END LOOP;
 
-                CLOSE get_columns;
+                CLOSE c_service_invoices;
+
+                -- Calculate Room Income
+                OPEN c_room_invoices;
+                LOOP
+                    FETCH c_room_invoices INTO r_ri;
+                END LOOP;
+
+                CLOSE c_room_invoices;
 
             END LOOP;
             CLOSE c_reservations;
