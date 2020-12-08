@@ -4,9 +4,13 @@ DECLARE
     H3_ID Number;
     H4_ID Number;
     H5_ID Number;
-    res_id NUMBER;
-    arnold_res_id NUMBER;
-    john_res_id NUMBER;
+    res_random_id NUMBER;
+    res_arnold_double_id NUMBER;
+    res_arnold_conf_id NUMBER;
+    res_wise_single_id NUMBER;
+    res_john_id NUMBER;
+    res_wise_double_id NUMBER;
+    found_res_id NUMBER;
 BEGIN
     -- Member 1, Stevie Clark
     -- 1. Add a hotel:
@@ -59,8 +63,8 @@ BEGIN
                     TO_DATE('2020-08-10', 'YYYY-MM-DD'),
                     'suite',  -- type of room
                     CURRENT_DATE,
-                    john_res_id);
-    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || john_res_id);
+                    res_john_id);
+    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_john_id);
     DBMS_OUTPUT.PUT_LINE('b.	Make any reservation at hotel H1 (already sold – should print out appropriate msg)');
     MakeReservation(H1_ID,
                     'Jimmy Bob',
@@ -68,8 +72,8 @@ BEGIN
                     TO_DATE('2014-01-25', 'YYYY-MM-DD'),
                     'suite',  -- type of room
                     CURRENT_DATE,
-                    res_id);
-    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_id);
+                    res_random_id);
+    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_random_id);
     DBMS_OUTPUT.PUT_LINE('c.	Make a reservation by Arnold Patterson for conference hall at H4 from Jan 1 – Jan 5');
     MakeReservation(H4_ID,
                     'Arnold Patterson',
@@ -77,8 +81,8 @@ BEGIN
                     TO_DATE('2021-01-05', 'YYYY-MM-DD'),
                     'conference',  -- type of room
                     TO_DATE('2020-12-05', 'YYYY-MM-DD'),
-                    res_id);
-    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_id);
+                    res_arnold_conf_id);
+    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_arnold_conf_id);
     DBMS_OUTPUT.PUT_LINE('d.	Make a reservation by Arnold Patterson for double room at H4 from Feb 10 – Feb 15');
     MakeReservation(H4_ID,
                     'Arnold Patterson',
@@ -86,14 +90,14 @@ BEGIN
                     TO_DATE('2021-02-15', 'YYYY-MM-DD'),
                     'double',  -- type of room
                     TO_DATE('2020-12-05', 'YYYY-MM-DD'),
-                    arnold_res_id);
-    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || arnold_res_id);
+                    res_arnold_double_id);
+    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_arnold_double_id);
     DBMS_OUTPUT.PUT_LINE('e.	Find the reservation of Arnold Patterson (Jan 1 - 5)');
     FindReservation('Arnold Patterson',
                     TO_DATE('2020-12-05', 'YYYY-MM-DD'),
                     H4_ID,
-                    res_id);
-    DBMS_OUTPUT.PUT_LINE('Find Reservation Output ID: ' || res_id);
+                    found_res_id);
+    DBMS_OUTPUT.PUT_LINE('Find Reservation Output ID: ' || found_res_id);
     DBMS_OUTPUT.PUT_LINE('f.	Make a reservation by Mary Wise for single at H4 from Jan 10 – Jan 15');
     MakeReservation(H4_ID,
                     'Mary Wise',
@@ -101,8 +105,8 @@ BEGIN
                     TO_DATE('2021-01-15', 'YYYY-MM-DD'),
                     'single',  -- type of room
                     TO_DATE('2020-01-05', 'YYYY-MM-DD'),
-                    res_id);
-    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_id);
+                    res_wise_single_id);
+    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_wise_single_id);
     DBMS_OUTPUT.PUT_LINE('g.	Make a reservation by Mary Wise for a double at H4 from Jan 1 – Jan 5');
     MakeReservation(H4_ID,
                     'Mary Wise',
@@ -110,12 +114,12 @@ BEGIN
                     TO_DATE('2021-01-05', 'YYYY-MM-DD'),
                     'double',  -- type of room
                     TO_DATE('2020-12-05', 'YYYY-MM-DD'),
-                    res_id);
-    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_id);
+                    res_wise_double_id);
+    DBMS_OUTPUT.PUT_LINE('Make Reservation Output ID: ' || res_wise_double_id);
     DBMS_OUTPUT.PUT_LINE('h.	Cancel reservation of Arnold Patterson for double room');
-    CancelReservation(arnold_res_id);
+    CancelReservation(res_arnold_double_id);
     DBMS_OUTPUT.PUT_LINE('i.	Cancel reservation of John Smith');
-    CancelReservation(john_res_id);
+    CancelReservation(res_john_id);
     DBMS_OUTPUT.PUT_LINE('j.	Show cancellations');
     ShowCancellations();
 
@@ -124,17 +128,17 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('7. Change Reservations');
     
     DBMS_OUTPUT.PUT_LINE('a.	Change Arnold’s reservation of a conference hall to Feb 1 – Feb 5');
-    change_reservation(arnold_res_id,
+    change_reservation(res_arnold_conf_id,
                       TO_DATE ('2021-02-01','YYYY-MM-DD'),
                       TO_DATE ('2021-02-05','YYYY-MM-DD'),
-                      'conference')
+                      'conference');
     DBMS_OUTPUT.PUT_LINE('b.	Change Mary Wise reservation room type from double to single room');
-    change_roomType(wise_res_id,
-                   'single')
+    change_roomType(res_wise_double_id,
+                   'single');
     DBMS_OUTPUT.PUT_LINE('c.	Show reservations for H4');
-    show_singleHotel(H4)
+    show_singleHotel(H4_ID);
     DBMS_OUTPUT.PUT_LINE('d.	Show all reservations that  Mary Wise made');
-    show_singleGuest(wise_res_id)
+    show_singleGuest('Mary Wise');
     DBMS_OUTPUT.PUT_LINE('e.	Provide Total Monthly income report');
     -- TODO
 
