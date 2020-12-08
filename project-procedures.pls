@@ -268,7 +268,7 @@ begin
         end loop;
 end;
 
-Create or replace procedure change_reservation(res_id in INT) is
+Create or replace procedure change_reservation(res_id in INT, reservation_date in DATE, room_type in VARCHAR2) is
     Cursor c1 is
         select reservation_date, reservation_id, room_type
         from reservations
@@ -286,7 +286,7 @@ begin
       and room_type = 'available';
 end;
 
-Create or replace procedure change_roomType(res_id in INT) is
+Create or replace procedure change_roomType(res_id in INT, room_type in VARCHAR2) is
     Cursor c2 is
         select reservation_date, reservation_id, room_type
         from reservations
