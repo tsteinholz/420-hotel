@@ -237,8 +237,7 @@ END;
 
 -- Member 3 Procedures
 
-set SERVEROUTPUT ON
-Create procedure show_singleHotel(hot_id in INT) is
+Create or replace procedure show_singleHotel(hot_id in INT) is
     Cursor c3 is
         select reservation_date, reservation_id, room_type
         from reservations

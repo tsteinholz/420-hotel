@@ -130,7 +130,6 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('a.	Change Arnold’s reservation of a conference hall to Feb 1 – Feb 5');
     change_reservation(res_arnold_conf_id,
                       TO_DATE ('2021-02-01','YYYY-MM-DD'),
-                      TO_DATE ('2021-02-05','YYYY-MM-DD'),
                       'conference');
     DBMS_OUTPUT.PUT_LINE('b.	Change Mary Wise reservation room type from double to single room');
     change_roomType(res_wise_double_id,
