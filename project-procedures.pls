@@ -304,19 +304,47 @@ end;
 
 CREATE OR REPLACE PROCEDURE MonthlyIncomeReport IS
 
+    -- used to filter cursors.
     v_res_id NUMBER;
     v_hotel_id NUMBER;
 
+    -- cursors for iterating data.
     CURSOR c_service_invoices IS SELECT SERVICE_TYPE, s.SERVICE_ID, SERVICE_AMOUNT
         FROM SERVICES s, CUSTOMER_SERVICE_INVOICES csi
         WHERE s.SERVICE_ID=csi.SERVICE_ID AND csi.RESERVATION_ID=v_res_id;
+    r_si c_service_invoices%rowtype;
 
-    CURSOR c_room_invoices IS SELECT RESERVATION_ROOM FROM CUSTOMER_ROOM_INVOICES;
+    CURSOR c_room_invoices IS SELECT RESERVATION_ROOM, ROOM_TYPE, ROOM_RATE
+        FROM CUSTOMER_ROOM_INVOICES cri, ROOMS r
+        WHERE r.ROOM_NUMBER=cri.RESERVATION_ROOM AND r.ROOM_HOTEL=cri.RESERVATION_HOTEL;
+    r_cri c_room_invoices%rowtype;
 
+    CURSOR c_reservations IS SELECT RESERVATION_ID, CHECK_OUT_TIME, ROOM_TYPE, CANCELED
+        FROM RESERVATIONS
+        WHERE HOTEL_ID=v_hotel_id;
+    r_reservation c_reservations%rowtype;
 
-    CURSOR c_res IS SELECT CHECK_OUT_TIME, ROOM_TYPE, SERVICE_TYPE
-        FROM RESERVATIONS r, CUSTOMER_SERVICE_INVOICES cs, CUSTOMER_ROOM_INVOICES cr, SERVICES s
-        WHERE r.RESERVATION_ID=cs.RESERVATION_ID AND r.RESERVATION_ID=cr.RESERVATION_ID AND cs.SERVICE_ID=s.SERVICE_ID;
+    CURSOR c_hotels IS SELECT HOTEL_ID, HOTEL_NAME, HOTEL_IS_SOLD FROM HOTELS;
+    r_hotel c_hotels%rowtype;
+
 BEGIN
+    for r_hotel in c_hotels
+        LOOP
+            v_hotel_id := r_hotel.HOTEL_ID; -- used for filtering other cursors.
+            OPEN c_reservations;
+                LOOP
+                    FETCH c_reservations INTO r_reservation;
+                    v_res_id := r_reservation.RESERVATION_ID; -- used for filtering other cursors.
 
+                    OPEN get_columns;
+                    LOOP
+                        FETCH get_columns INTO v_column_name;
+                    END LOOP;
+
+              CLOSE get_columns;
+
+           END LOOP;
+
+           CLOSE c_reservations;
+        END LOOP;
 END;

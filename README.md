@@ -1,21 +1,10 @@
 # UMBC IS420: Hotel Database Application Project, Team 2
 
-## IS420: Team 2 Project
-
-
-### Deliverable 1
-
-
-##### Team 2
-
-
-
 *   Stevie Clark, Member 1
 *   Thomas Steinholz, Member 2
 *   Olivia Docal, Member 3
 *   Jay Gonzales, Member 4
 *   Mason Godsey, Member 5
-
 
 ##### Version 1 // Revision 10.5.2020
 
