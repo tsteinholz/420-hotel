@@ -166,9 +166,10 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('9. More reports');
     -- TODO
     DBMS_OUTPUT.PUT_LINE('a.	Show available rooms by type in hotel H4');
-    -- TODO
+    showavailablerooms(4);
     DBMS_OUTPUT.PUT_LINE('b.	Show the checkout/invoice list of Mary Wise (she has multiple reservations)');
-    -- TODO
+    checkoutreport(4);
+    checkoutreport(5);
     DBMS_OUTPUT.PUT_LINE('c.	Show Income for all hotels in MD');
-    -- TODO
+    incomeByStateReport('MD');
 END;
