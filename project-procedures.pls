@@ -310,14 +310,16 @@ CREATE OR REPLACE PROCEDURE MonthlyIncomeReport(year IN NUMBER) IS
     v_month NUMBER;
 
     -- cursors for iterating data.
-    CURSOR c_service_invoices IS SELECT SERVICE_TYPE, s.SERVICE_ID, SERVICE_AMOUNT
+    CURSOR c_service_invoices IS SELECT SERVICE_TYPE, SUM(SERVICE_AMOUNT * SERVICE_RATE) ti
         FROM SERVICES s, CUSTOMER_SERVICE_INVOICES csi
-        WHERE s.SERVICE_ID=csi.SERVICE_ID AND csi.RESERVATION_ID=v_res_id;
+        WHERE s.SERVICE_ID=csi.SERVICE_ID AND csi.RESERVATION_ID=v_res_id
+        GROUP BY SERVICE_TYPE;
     r_si c_service_invoices%rowtype;
 
-    CURSOR c_room_invoices IS SELECT RESERVATION_ROOM, ROOM_TYPE, ROOM_RATE
+    CURSOR c_room_invoices IS SELECT SUM(ROOM_RATE)
         FROM CUSTOMER_ROOM_INVOICES cri, ROOMS r
-        WHERE r.ROOM_NUMBER=cri.RESERVATION_ROOM AND r.ROOM_HOTEL=cri.RESERVATION_HOTEL;
+        WHERE r.ROOM_NUMBER=cri.RESERVATION_ROOM AND r.ROOM_HOTEL=cri.RESERVATION_HOTEL
+        GROUP BY ROOM_TYPE;
     r_ri c_room_invoices%rowtype;
 
     CURSOR c_reservations IS SELECT RESERVATION_ID, CHECK_OUT_TIME, ROOM_TYPE, CANCELED
@@ -334,12 +336,17 @@ BEGIN
     LOOP  -- Each Hotel.
 
         v_hotel_id := r_hotel.HOTEL_ID; -- used for filtering other cursors.
+        DBMS_OUTPUT.PUT_LINE('');
+        DBMS_OUTPUT.PUT_LINE('===============================================================================');
+        DBMS_OUTPUT.PUT_LINE('Hotel ' || r_hotel.HOTEL_NAME || ', ' || r_hotel.HOTEL_ID, ', Sold: ' || r_hotel.HOTEL_IS_SOLD);
 
         FOR month in 1 .. 12
         LOOP  -- Each month.
 
             v_month := month; -- used for filtering other cursors.
-
+            DBMS_OUTPUT.PUT_LINE('');
+            DBMS_OUTPUT.PUT_LINE('-------------------------------------------------------------------------------');
+            DBMS_OUTPUT.PUT_LINE('Month ' || v_month);
             OPEN c_reservations;
             LOOP  -- Each reservation.
 
@@ -350,8 +357,8 @@ BEGIN
                 OPEN c_service_invoices;
                 LOOP
                     FETCH c_service_invoices INTO r_si;
+                    DBMS_OUTPUT.PUT();
                 END LOOP;
-
                 CLOSE c_service_invoices;
 
                 -- Calculate Room Income
@@ -359,7 +366,6 @@ BEGIN
                 LOOP
                     FETCH c_room_invoices INTO r_ri;
                 END LOOP;
-
                 CLOSE c_room_invoices;
 
             END LOOP;
