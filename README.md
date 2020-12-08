@@ -11,7 +11,7 @@
 
 ## Entity-Relationship Diagram
 
-todo
+![ER Diagram](https://github.com/tsteinholz/420-hotel/raw/master/er-diagram.png)
 
 
 ## Procedures                                                                        
